@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MBG Tracker — Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="dashboard-page">
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i class="fa-solid fa-bowl-food"></i>
+        <span>MBG Tracker</span>
+      </div>
+      <button class="sidebar-close" id="sidebarClose"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sidebarAvatar">G</div>
+      <div class="user-info">
+        <strong id="sidebarName">Guru</strong>
+        <span>Guru Pengajar</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-section="dashboard">
+        <i class="fa-solid fa-chart-pie"></i> Dashboard
+      </a>
+      <a href="#" class="nav-item" data-section="form">
+        <i class="fa-solid fa-plus-circle"></i> Input Data
+      </a>
+      <a href="#" class="nav-item" data-section="history">
+        <i class="fa-solid fa-clock-rotate-left"></i> Riwayat
+      </a>
+      <a href="#" class="nav-item" data-section="qr">
+        <i class="fa-solid fa-qrcode"></i> QR Kelas
+      </a>
+      <a href="#" class="nav-item" data-section="export">
+        <i class="fa-solid fa-file-export"></i> Export Data
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" id="btnLogout">
+        <i class="fa-solid fa-right-from-bracket"></i> Keluar
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <button class="topbar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="topbarDate"></div>
+        <div class="topbar-user" id="topbarUser"></div>
+      </div>
+    </header>
+
+    <!-- ===== SECTION: DASHBOARD ===== -->
+    <section id="sec-dashboard" class="section active">
+      <div class="section-header">
+        <h2>Dashboard <span>Hari Ini</span></h2>
+        <p id="dashDate" class="section-sub"></p>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="cards-grid">
+        <div class="stat-card animate-fadeup" style="--delay:0.0s">
+          <div class="stat-icon" style="background:linear-gradient(135deg,#355872,#7AAACE)">
+            <i class="fa-solid fa-bowl-food"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Total Diterima</span>
+            <span class="stat-value" id="cardTotal">0</span>
+          </div>
+          <div class="stat-badge">Hari Ini</div>
+        </div>
+        <div class="stat-card animate-fadeup" style="--delay:0.1s">
+          <div class="stat-icon" style="background:linear-gradient(135deg,#27ae60,#2ecc71)">
+            <i class="fa-solid fa-check-double"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Sudah Dibagikan</span>
+            <span class="stat-value" id="cardDibagikan">0</span>
+          </div>
+          <div class="stat-badge">Hari Ini</div>
+        </div>
+        <div class="stat-card animate-fadeup" style="--delay:0.2s">
+          <div class="stat-icon" style="background:linear-gradient(135deg,#e67e22,#f39c12)">
+            <i class="fa-solid fa-box-open"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Sisa Ompreng</span>
+            <span class="stat-value" id="cardSisa">0</span>
+          </div>
+          <div class="stat-badge">Hari Ini</div>
+        </div>
+        <div class="stat-card animate-fadeup" style="--delay:0.3s">
+          <div class="stat-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">
+            <i class="fa-solid fa-school"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Kelas Tercatat</span>
+            <span class="stat-value" id="cardKelas">0</span>
+          </div>
+          <div class="stat-badge">Hari Ini</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-card animate-fadeup" style="--delay:0.4s">
+          <div class="chart-header">
+            <h3>Distribusi per Kelas</h3>
+            <span class="chart-period">Hari Ini</span>
+          </div>
+          <canvas id="chartBar" height="220"></canvas>
+        </div>
+        <div class="chart-card animate-fadeup" style="--delay:0.5s">
+          <div class="chart-header">
+            <h3>Status Pembagian</h3>
+            <span class="chart-period">Semua Data</span>
+          </div>
+          <canvas id="chartDoughnut" height="220"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="recent-card animate-fadeup" style="--delay:0.6s">
+        <div class="chart-header">
+          <h3>Aktivitas Terbaru</h3>
+          <a href="#" class="link-all" data-section="history">Lihat Semua →</a>
+        </div>
+        <div id="recentList" class="recent-list">
+          <p class="empty-state">Belum ada data hari ini.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SECTION: FORM INPUT ===== -->
+    <section id="sec-form" class="section">
+      <div class="section-header">
+        <h2>Input Data <span>Ompreng</span></h2>
+        <p class="section-sub">Catat pembagian ompreng untuk kelas</p>
+      </div>
+
+      <div class="form-container animate-fadeup">
+        <form id="mbgForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label><i class="fa-solid fa-user-tie"></i> Nama Guru</label>
+              <input type="text" id="fNamaGuru" readonly class="readonly-field"/>
+            </div>
+            <div class="form-group">
+              <label><i class="fa-solid fa-calendar-day"></i> Tanggal</label>
+              <input type="date" id="fTanggal" required/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fa-solid fa-school"></i> Pilih Kelas</label>
+            <select id="fKelas" required>
+              <option value="">-- Pilih Kelas --</option>
+              <optgroup label="Kelas 10 RPL">
+                <option>10 RPL 1</option><option>10 RPL 2</option><option>10 RPL 3</option><option>10 RPL 4</option>
+                <option>10 RPL 5</option><option>10 RPL 6</option><option>10 RPL 7</option><option>10 RPL 8</option>
+              </optgroup>
+              <optgroup label="Kelas 10 TKJ">
+                <option>10 TKJ 1</option><option>10 TKJ 2</option><option>10 TKJ 3</option><option>10 TKJ 4</option>
+              </optgroup>
+              <optgroup label="Kelas 10 PG">
+                <option>10 PG 1</option><option>10 PG 2</option>
+              </optgroup>
+              <optgroup label="Kelas 11 RPL">
+                <option>11 RPL 1</option><option>11 RPL 2</option><option>11 RPL 3</option><option>11 RPL 4</option>
+                <option>11 RPL 5</option><option>11 RPL 6</option><option>11 RPL 7</option><option>11 RPL 8</option>
+              </optgroup>
+              <optgroup label="Kelas 11 TKJ">
+                <option>11 TKJ 1</option><option>11 TKJ 2</option><option>11 TKJ 3</option><option>11 TKJ 4</option>
+              </optgroup>
+              <optgroup label="Kelas 11 PG">
+                <option>11 PG 1</option><option>11 PG 2</option>
+              </optgroup>
+              <optgroup label="Kelas 12 RPL">
+                <option>12 RPL 1</option><option>12 RPL 2</option><option>12 RPL 3</option><option>12 RPL 4</option>
+                <option>12 RPL 5</option><option>12 RPL 6</option><option>12 RPL 7</option><option>12 RPL 8</option>
+              </optgroup>
+              <optgroup label="Kelas 12 PG">
+                <option>12 PG 1</option><option>12 PG 2</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label><i class="fa-solid fa-inbox"></i> Jumlah Diterima</label>
+              <input type="number" id="fDiterima" min="0" placeholder="0" required/>
+            </div>
+            <div class="form-group">
+              <label><i class="fa-solid fa-share-from-square"></i> Jumlah Dibagikan</label>
+              <input type="number" id="fDibagikan" min="0" placeholder="0" required/>
+            </div>
+          </div>
+
+          <!-- Sisa auto -->
+          <div class="sisa-display" id="sisaDisplay">
+            <div class="sisa-label">Sisa Ompreng</div>
+            <div class="sisa-value" id="sisaVal">—</div>
+            <div class="sisa-status" id="sisaStatus"></div>
+          </div>
+
+          <!-- Warning -->
+          <div id="formWarning" class="form-warning hidden">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="warningText">Peringatan validasi</span>
+          </div>
+
+          <!-- Upload Foto Bukti -->
+          <div class="form-group">
+            <label><i class="fa-solid fa-image"></i> Foto Bukti (Opsional)</label>
+            <div class="upload-area" id="uploadArea">
+              <input type="file" id="fotoBukti" accept="image/*" class="file-input"/>
+              <div class="upload-placeholder" id="uploadPlaceholder">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Klik atau drag & drop foto bukti</span>
+              </div>
+              <img id="fotoPreview" class="foto-preview hidden" src="" alt="Preview"/>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" id="btnSubmit">
+            <span class="btn-text"><i class="fa-solid fa-paper-plane"></i> Simpan Data</span>
+            <span class="btn-loader hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Menyimpan...</span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===== SECTION: RIWAYAT ===== -->
+    <section id="sec-history" class="section">
+      <div class="section-header">
+        <h2>Riwayat <span>Pembagian</span></h2>
+        <p class="section-sub">Semua catatan pembagian ompreng</p>
+      </div>
+
+      <div class="history-toolbar animate-fadeup">
+        <div class="search-box">
+          <i class="fa-solid fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Cari kelas, guru..."/>
+        </div>
+        <div class="filter-group">
+          <input type="date" id="filterDate" title="Filter tanggal"/>
+          <select id="filterKelas">
+            <option value="">Semua Kelas</option>
+            <option>10 RPL 1</option><option>10 RPL 2</option><option>10 RPL 3</option><option>10 RPL 4</option>
+            <option>10 RPL 5</option><option>10 RPL 6</option><option>10 RPL 7</option><option>10 RPL 8</option>
+            <option>10 TKJ 1</option><option>10 TKJ 2</option><option>10 TKJ 3</option><option>10 TKJ 4</option>
+            <option>10 PG 1</option><option>10 PG 2</option>
+            <option>11 RPL 1</option><option>11 RPL 2</option><option>11 RPL 3</option><option>11 RPL 4</option>
+            <option>11 RPL 5</option><option>11 RPL 6</option><option>11 RPL 7</option><option>11 RPL 8</option>
+            <option>11 TKJ 1</option><option>11 TKJ 2</option><option>11 TKJ 3</option><option>11 TKJ 4</option>
+            <option>11 PG 1</option><option>11 PG 2</option>
+            <option>12 RPL 1</option><option>12 RPL 2</option><option>12 RPL 3</option><option>12 RPL 4</option>
+            <option>12 RPL 5</option><option>12 RPL 6</option><option>12 RPL 7</option><option>12 RPL 8</option>
+            <option>12 PG 1</option><option>12 PG 2</option>
+          </select>
+          <button class="btn-clear-filter" id="btnClearFilter"><i class="fa-solid fa-filter-circle-xmark"></i></button>
+        </div>
+      </div>
+
+      <div class="table-container animate-fadeup">
+        <table class="data-table" id="dataTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tanggal</th>
+              <th>Guru</th>
+              <th>Kelas</th>
+              <th>Diterima</th>
+              <th>Dibagikan</th>
+              <th>Sisa</th>
+              <th>Status</th>
+              <th>Waktu</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="9" class="empty-state">Belum ada data.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="tableInfo" class="table-info"></div>
+    </section>
+
+    <!-- ===== SECTION: QR CODE ===== -->
+    <section id="sec-qr" class="section">
+      <div class="section-header">
+        <h2>QR Code <span>Kelas</span></h2>
+        <p class="section-sub">Generate QR untuk setiap kelas</p>
+      </div>
+
+      <div class="qr-controls animate-fadeup">
+        <div class="form-group" style="max-width:320px">
+          <label><i class="fa-solid fa-school"></i> Pilih Kelas</label>
+          <select id="qrKelas">
+            <option value="">-- Pilih Kelas --</option>
+            <optgroup label="Kelas 10 RPL">
+              <option>10 RPL 1</option><option>10 RPL 2</option><option>10 RPL 3</option><option>10 RPL 4</option>
+              <option>10 RPL 5</option><option>10 RPL 6</option><option>10 RPL 7</option><option>10 RPL 8</option>
+            </optgroup>
+            <optgroup label="Kelas 10 TKJ">
+              <option>10 TKJ 1</option><option>10 TKJ 2</option><option>10 TKJ 3</option><option>10 TKJ 4</option>
+            </optgroup>
+            <optgroup label="Kelas 10 PG">
+              <option>10 PG 1</option><option>10 PG 2</option>
+            </optgroup>
+            <optgroup label="Kelas 11 RPL">
+              <option>11 RPL 1</option><option>11 RPL 2</option><option>11 RPL 3</option><option>11 RPL 4</option>
+              <option>11 RPL 5</option><option>11 RPL 6</option><option>11 RPL 7</option><option>11 RPL 8</option>
+            </optgroup>
+            <optgroup label="Kelas 11 TKJ">
+              <option>11 TKJ 1</option><option>11 TKJ 2</option><option>11 TKJ 3</option><option>11 TKJ 4</option>
+            </optgroup>
+            <optgroup label="Kelas 11 PG">
+              <option>11 PG 1</option><option>11 PG 2</option>
+            </optgroup>
+            <optgroup label="Kelas 12 RPL">
+              <option>12 RPL 1</option><option>12 RPL 2</option><option>12 RPL 3</option><option>12 RPL 4</option>
+              <option>12 RPL 5</option><option>12 RPL 6</option><option>12 RPL 7</option><option>12 RPL 8</option>
+            </optgroup>
+            <optgroup label="Kelas 12 PG">
+              <option>12 PG 1</option><option>12 PG 2</option>
+            </optgroup>
+          </select>
+        </div>
+        <button class="btn-generate-qr" id="btnGenerateQR">
+          <i class="fa-solid fa-qrcode"></i> Generate QR
+        </button>
+      </div>
+
+      <div class="qr-result hidden animate-fadeup" id="qrResult">
+        <div class="qr-card">
+          <div class="qr-box" id="qrBox"></div>
+          <div class="qr-label" id="qrLabel"></div>
+          <p class="qr-desc">Scan QR ini untuk konfirmasi pembagian ompreng</p>
+          <button class="btn-download-qr" id="btnDownloadQR">
+            <i class="fa-solid fa-download"></i> Download QR
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SECTION: EXPORT ===== -->
+    <section id="sec-export" class="section">
+      <div class="section-header">
+        <h2>Export <span>Data</span></h2>
+        <p class="section-sub">Unduh data pembagian ompreng</p>
+      </div>
+
+      <div class="export-grid animate-fadeup">
+        <div class="export-card" id="exportCSV">
+          <div class="export-icon"><i class="fa-solid fa-file-csv"></i></div>
+          <h3>Export CSV</h3>
+          <p>Download data dalam format CSV, bisa dibuka di Excel</p>
+          <button class="btn-export" onclick="MBG.exportCSV()">
+            <i class="fa-solid fa-download"></i> Download CSV
+          </button>
+        </div>
+        <div class="export-card" id="exportExcel">
+          <div class="export-icon" style="color:#27ae60"><i class="fa-solid fa-file-excel"></i></div>
+          <h3>Export Excel</h3>
+          <p>Download data dalam format Excel (.xlsx)</p>
+          <button class="btn-export" onclick="MBG.exportExcel()">
+            <i class="fa-solid fa-download"></i> Download Excel
+          </button>
+        </div>
+        <div class="export-card">
+          <div class="export-icon" style="color:#e74c3c"><i class="fa-solid fa-database"></i></div>
+          <h3>Statistik Data</h3>
+          <p id="exportStats">Memuat statistik...</p>
+          <button class="btn-export" onclick="MBG.showSection('dashboard')">
+            <i class="fa-solid fa-chart-bar"></i> Lihat Dashboard
+          </button>
+        </div>
+      </div>
+
+      <!-- Google Sheets Guide -->
+      <div class="sheets-guide animate-fadeup">
+        <div class="guide-header">
+          <i class="fa-brands fa-google"></i>
+          <h3>Cara Integrasi Google Sheets</h3>
+        </div>
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <strong>Buat Google Spreadsheet</strong>
+              <p>Buka Google Sheets, buat spreadsheet baru dengan kolom: Tanggal, Nama Guru, Kelas, Jumlah Diterima, Jumlah Dibagikan, Sisa, Status, Waktu Input</p>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <strong>Buat Google Apps Script</strong>
+              <p>Di spreadsheet, buka Extensions → Apps Script, paste kode berikut:</p>
+              <pre class="code-block">function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet()
+              .getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  sheet.appendRow([
+    data.tanggal, data.namaGuru, data.kelas,
+    data.diterima, data.dibagikan, data.sisa,
+    data.status, data.waktuInput
+  ]);
+  return ContentService
+    .createTextOutput(JSON.stringify({success:true}))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <strong>Deploy sebagai Web App</strong>
+              <p>Klik Deploy → New deployment → Web App. Set "Who has access" ke "Anyone". Copy URL yang dihasilkan.</p>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <strong>Tempel URL ke script.js</strong>
+              <p>Di file script.js, ganti nilai variabel <code>APPS_SCRIPT_URL</code> dengan URL deployment Anda.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+  <script>
+    // Init dashboard after DOM ready
+    MBG.initDashboard();
+  </script>
+</body>
+</html>
