@@ -15,8 +15,8 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwQs4I_rJMBU7Zh
 // Bisa dikembangkan ke Google Sheets sebagai sumber data
 // =============================================
 const USERS = [
-  { username: 'guru1', password: 'mbg2024', nama: 'Bapak Andi Prasetyo', role: 'guru' },
-  { username: 'guru2', password: 'mbg2024', nama: 'Ibu Sari Dewi',       role: 'guru' },
+  { username: 'thoriq', password: 'mbgtelkomwenak', nama: 'Bapak Thoriq', role: 'guru' },
+  { username: 'Ayu', password: 'mbgtelkomwenak', nama: 'Ibu Ayu',       role: 'guru' },
   { username: 'guru3', password: 'mbg2024', nama: 'Bapak Hendra Wijaya', role: 'guru' },
   { username: 'admin', password: 'admin123', nama: 'Administrator',      role: 'guru' },
 ];
